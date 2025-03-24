@@ -256,10 +256,15 @@ impl State {
             usage: wgpu::BufferUsages::VERTEX,
         });
 
-        // Create the shader module
+        // Create the shader module with dynamic values
+        let shader_code = include_str!("shader_code.wgsl")
+            .replace("PARTICLE_SIZE: f32 = 3.0", &format!("PARTICLE_SIZE: f32 = {}", PARTICLE_SIZE))
+            .replace("SCREEN_WIDTH: f32 = 800.0", &format!("SCREEN_WIDTH: f32 = {}", size.width as f32))
+            .replace("SCREEN_HEIGHT: f32 = 600.0", &format!("SCREEN_HEIGHT: f32 = {}", size.height as f32));
+            
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(shader_code.into()),
         });
 
         let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
