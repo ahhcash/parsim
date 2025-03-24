@@ -1,5 +1,4 @@
-// This is a separate file that we'll write to disk at runtime
-// src/shader_code.wgsl
+// This is a template shader file with placeholders for dynamic values
 struct VertexInput {
     @location(0) position: vec2<f32>,
     @location(1) instance_position: vec2<f32>,
@@ -10,6 +9,11 @@ struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
     @location(0) color: vec4<f32>,
 };
+
+// Constants that will be replaced at runtime
+const PARTICLE_SIZE: f32 = 3.0;
+const SCREEN_WIDTH: f32 = 800.0;
+const SCREEN_HEIGHT: f32 = 600.0;
 
 @vertex
 fn vs_main(
@@ -34,10 +38,5 @@ fn vs_main(
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     return in.color;
 }
-
-// Constants injected by the renderer
-var<private> PARTICLE_SIZE: f32 = 3.0;
-var<private> SCREEN_WIDTH: f32 = 800.0;
-var<private> SCREEN_HEIGHT: f32 = 600.0;
 
 

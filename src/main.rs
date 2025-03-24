@@ -1,5 +1,5 @@
 use std::iter;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use wgpu::util::DeviceExt;
 use winit::{
     event::*,
@@ -258,9 +258,9 @@ impl State {
 
         // Create the shader module with dynamic values
         let shader_code = include_str!("shader_code.wgsl")
-            .replace("PARTICLE_SIZE: f32 = 3.0", &format!("PARTICLE_SIZE: f32 = {}", PARTICLE_SIZE))
-            .replace("SCREEN_WIDTH: f32 = 800.0", &format!("SCREEN_WIDTH: f32 = {}", size.width as f32))
-            .replace("SCREEN_HEIGHT: f32 = 600.0", &format!("SCREEN_HEIGHT: f32 = {}", size.height as f32));
+            .replace("const PARTICLE_SIZE: f32 = 3.0", &format!("const PARTICLE_SIZE: f32 = {}", PARTICLE_SIZE))
+            .replace("const SCREEN_WIDTH: f32 = 800.0", &format!("const SCREEN_WIDTH: f32 = {}", size.width as f32))
+            .replace("const SCREEN_HEIGHT: f32 = 600.0", &format!("const SCREEN_HEIGHT: f32 = {}", size.height as f32));
             
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
@@ -333,9 +333,9 @@ impl State {
             
             // Recreate the shader with new dimensions
             let shader_code = include_str!("shader_code.wgsl")
-                .replace("PARTICLE_SIZE: f32 = 3.0", &format!("PARTICLE_SIZE: f32 = {}", PARTICLE_SIZE))
-                .replace("SCREEN_WIDTH: f32 = 800.0", &format!("SCREEN_WIDTH: f32 = {}", new_size.width as f32))
-                .replace("SCREEN_HEIGHT: f32 = 600.0", &format!("SCREEN_HEIGHT: f32 = {}", new_size.height as f32));
+                .replace("const PARTICLE_SIZE: f32 = 3.0", &format!("const PARTICLE_SIZE: f32 = {}", PARTICLE_SIZE))
+                .replace("const SCREEN_WIDTH: f32 = 800.0", &format!("const SCREEN_WIDTH: f32 = {}", new_size.width as f32))
+                .replace("const SCREEN_HEIGHT: f32 = 600.0", &format!("const SCREEN_HEIGHT: f32 = {}", new_size.height as f32));
                 
             let shader = self.device.create_shader_module(wgpu::ShaderModuleDescriptor {
                 label: Some("Shader"),
