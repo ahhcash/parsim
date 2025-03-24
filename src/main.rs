@@ -325,6 +325,62 @@ impl State {
             self.config.width = new_size.width;
             self.config.height = new_size.height;
             self.surface.configure(&self.device, &self.config);
+            
+            // Recreate the shader with new dimensions
+            let shader_code = include_str!("shader_code.wgsl")
+                .replace("PARTICLE_SIZE: f32 = 3.0", &format!("PARTICLE_SIZE: f32 = {}", PARTICLE_SIZE))
+                .replace("SCREEN_WIDTH: f32 = 800.0", &format!("SCREEN_WIDTH: f32 = {}", new_size.width as f32))
+                .replace("SCREEN_HEIGHT: f32 = 600.0", &format!("SCREEN_HEIGHT: f32 = {}", new_size.height as f32));
+                
+            let shader = self.device.create_shader_module(wgpu::ShaderModuleDescriptor {
+                label: Some("Shader"),
+                source: wgpu::ShaderSource::Wgsl(shader_code.into()),
+            });
+            
+            // Recreate the render pipeline with the new shader
+            let render_pipeline_layout = self.device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("Render Pipeline Layout"),
+                bind_group_layouts: &[],
+                push_constant_ranges: &[],
+            });
+            
+            self.render_pipeline = self.device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: Some("Render Pipeline"),
+                layout: Some(&render_pipeline_layout),
+                vertex: wgpu::VertexState {
+                    module: &shader,
+                    entry_point: "vs_main",
+                    buffers: &[Vertex::desc(), ParticleInstance::desc()],
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &shader,
+                    entry_point: "fs_main",
+                    targets: &[Some(wgpu::ColorTargetState {
+                        format: self.config.format,
+                        blend: Some(wgpu::BlendState {
+                            color: wgpu::BlendComponent::REPLACE,
+                            alpha: wgpu::BlendComponent::REPLACE,
+                        }),
+                        write_mask: wgpu::ColorWrites::ALL,
+                    })],
+                }),
+                primitive: wgpu::PrimitiveState {
+                    topology: wgpu::PrimitiveTopology::TriangleList,
+                    strip_index_format: None,
+                    front_face: wgpu::FrontFace::Ccw,
+                    cull_mode: Some(wgpu::Face::Back),
+                    polygon_mode: wgpu::PolygonMode::Fill,
+                    unclipped_depth: false,
+                    conservative: false,
+                },
+                depth_stencil: None,
+                multisample: wgpu::MultisampleState {
+                    count: 1,
+                    mask: !0,
+                    alpha_to_coverage_enabled: false,
+                },
+                multiview: None,
+            });
         }
     }
 
@@ -385,8 +441,6 @@ impl State {
 }
 
 fn main() {
-    // Create a file for the shader if it doesn't exist
-
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_title("Rust Particle Simulation")
